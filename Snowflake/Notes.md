@@ -1,12 +1,34 @@
+**Performace and Optimization**
+
+*General Tips*
+
+    1. Ingest data by using some ordering field such as order by date or id's - if we ingest data in particular order snowflake will keep same order of that data while creating micro-partions and metadata service holds min and max values for each partion which will gives us better ordering of the data and performance. 
+    2. Avoid use of sub queries but if you want to use inner queries us uncorrelated sub queries example : 
+        select p.name, p.annual_wage, p.city 
+        from pay p where p.annual_wage <(
+            select average_wage from intl_gdp 
+            where country ='Brazil'
+        )
+    3. Use unique columns for joining operation 
+    4. Avoid table scan operations
+    5. Avoid use of select * 
+    6. Query involving long running operation spill data from RAM to local disk and may incurred cost.
+
+*Clustering*
 
 
+example:
 
+create table test1( col1 date , col2 string, col3 number )
+cluster by (col1,col2)
 
+create table test2 (col1 timestamp , col2 string, col3 number)
+cluster by (to_date(col1), substring(col2,0,10))
 
+alter table test1
+cluster by (col1, col3)
 
-
-
-
+select system$clustering_information('test1','(col1)')
 
 
 
