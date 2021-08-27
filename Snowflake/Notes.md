@@ -1,5 +1,18 @@
 **Performace and Optimization**
 
+*Warehouse Consideration*
+
+    2 types of warehouses
+        1. standard - a cluster with two or more numbers of servers -- scaling up --manual process
+        2. Multiclustered - a warehouse with two or more numbers of clusters -- scaling out -- automatic process
+
+    Auto Scaling policies 
+    1. standard - start new cluster as soon as queueing starts
+    2. economy - will keep queries queued up to six minutes (to see if the queue clears)  before starting another clsuter. 
+
+    Note: 
+    In execution, query always runs within a single cluster it can not span between cluster - means a single query can span multiple servers within a clsuter but not out side of that cluster. 
+    
 *General Tips*
 
     1. Ingest data by using some ordering field such as order by date or id's - if we ingest data in particular order snowflake will keep same order of that data while creating micro-partions and metadata service holds min and max values for each partion which will gives us better ordering of the data and performance. 
@@ -29,22 +42,6 @@ alter table test1
 cluster by (col1, col3)
 
 select system$clustering_information('test1','(col1)')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ****
@@ -163,6 +160,3 @@ select system$clustering_information('test1','(col1)')
     from user_raw_stream;
 
     select * from user_final;
-
-
-

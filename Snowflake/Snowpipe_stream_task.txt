@@ -1,0 +1,86 @@
+use database test_db; 
+use warehouse compute_wh;
+use schema public;
+use role sysadmin;
+
+list @aws_s3_temp;
+
+create table duration_split_stg
+(
+"Planning period" string ,
+"SM" string ,
+"Destination" string ,
+"startdate" string , 
+"end date" string, 
+"duration" string,
+"split percentage" string 
+);
+
+select  * from  duration_split_stg;
+
+create or replace pipe duration_split_load_pipe
+AUTO_INGEST=True
+as copy into duration_split_stg
+from @aws_s3_temp
+file_format =aws_s3_ff;
+
+show pipes;
+
+create or replace sequence dur_split_id start =1 increment=1 ;
+
+create or replace table duration_split
+(
+"Duration_Split_Id" int default dur_split_id.nextval,
+"Planning_Period" string ,
+"Source_Market" string ,
+"Destination" string ,
+"Start_Date" date, 
+"End_Date" date, 
+"Duration" int,
+"Split_Percentage" decimal(10,5) 
+);
+
+desc table duration_split;
+--------
+create or replace stream delta_duration_split
+on table duration_split_stg;
+
+select  * from delta_duration_split;
+
+--task
+create or replace task load_delta_duration_split
+warehouse = compute_wh
+schedule =  '5 MINUTE'
+when 
+system$stream_has_data('test_db.public.delta_duration_split')
+as
+insert into duration_split ( "Planning_Period","Source_Market","Destination","Start_Date","End_Date","Duration","Split_Percentage")
+select 
+"Planning period" as Planning_Period,
+"SM" as Source_Market,
+"Destination" as Destination ,
+to_date("startdate", 'YYYY-MM-DD') as Start_Date , 
+to_date("end date", 'YYYY-MM-DD') as End_date, 
+"duration" as Duration ,
+"split percentage" as Split_Percentage
+from delta_duration_split;
+
+
+
+---
+use role accountadmin;
+alter task load_delta_duration_split resume;
+grant execute task  to role sysadmin;
+
+show tasks;
+
+select *
+  from table(information_schema.task_history())
+  order by scheduled_time;
+
+
+
+
+select * from duration_split_stg;
+select * from delta_duration_split;
+select * from duration_split;
