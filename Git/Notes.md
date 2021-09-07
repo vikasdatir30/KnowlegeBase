@@ -26,7 +26,7 @@ https://www.youtube.com/watch?v=-U-eUHI6euM&list=PLhW3qG5bs-L8OlICbNX9u4MZ3rAt5c
         - to collabrates with teams
     
     There are two types of VCS
-    1. Centerialize VCS
+    1. Centeralize VCS
     2. Distributed VCS - Git - free and open source 
 
     GitHub  - a platform to uplaod and host your repository 
