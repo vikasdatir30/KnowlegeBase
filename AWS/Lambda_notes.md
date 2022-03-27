@@ -6,7 +6,7 @@
 
     We just need to write our code and lambda function will automatically trigger execution by receiving some event. 
 
-    We can write our code in python, java , c++, ruby or javascript.
+    We can write our code in python, java , c# or javascript.
 
     Aws lambda mostly use to deploy background task and not for any heavy applications of because of certain limitations. 
     
